@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kingdom Chronicles: Frostbound</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+        }
+        main {
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        h1, h2 {
+            margin-top: 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007acc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #005f99;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Kingdom Chronicles: Frostbound</h1>
+    </header>
+    <main>
+        <section id="status">
+            <h2>Stadtstatus</h2>
+            <p id="era">Epoche: Bronzezeit</p>
+            <p id="level">Stufe deines Rathauses: 1</p>
+        </section>
+        <section id="controls">
+            <h2>Aktionen</h2>
+            <button onclick="upgradeBuildings()">Gebäude aufwerten</button>
+        </section>
+    </main>
+    <script>
+        let buildingLevel = 1;
+const eraDisplay = document.getElementById('era');
+const levelDisplay = document.getElementById('level');
+
+function updateEra() {
+    if (buildingLevel >= 27) {
+        eraDisplay.textContent = 'Epoche: Ferne Zukunft';
+    } else if (buildingLevel >= 25) {
+        eraDisplay.textContent = 'Epoche: Zukunft';
+    } else if (buildingLevel >= 20) {
+        eraDisplay.textContent = 'Epoche: Heute';
+    } else if (buildingLevel >= 15) {
+        eraDisplay.textContent = 'Epoche: Moderne (Weltkriege)';
+    } else if (buildingLevel >= 10) {
+        eraDisplay.textContent = 'Epoche: Caesar-Zeit';
+    } else if (buildingLevel >= 5) {
+        eraDisplay.textContent = 'Epoche: Eisenzeit';
+    } else {
+        eraDisplay.textContent = 'Epoche: Bronzezeit';
+    }
+}
+
+function upgradeBuildings() {
+    if (buildingLevel < 27) {
+        buildingLevel++;
+        levelDisplay.textContent = `Stufe deines Rathauses: ${buildingLevel}`;
+        updateEra();
+    } else {
+        alert('dein Rathaus ist schon auf maximalem LVL');
+        alert('Alle Gebäude sind bereits auf dem maximalen Level!');
+    }
+}
+
+updateEra();
+    </script>
+</body>
+</html>

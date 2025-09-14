@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snake Spiel</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+    } 
+    #game-container {
+      margin-top: 50px;
+    }
+    .button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .button:hover {
+      background-color: #2980b9;
+    }
+    canvas {
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Snake Spiel</h1>
+  <div id="game-container">
+    <p>Klicke auf den Button, um Snake zu starten!</p>
+    <p id="gameOverText" style="display: none; color: red; font-size: 24px;"></p>
+    <p id="scoreText">Score: 0</p>
+    <button class="button" onclick="startSnake()" title="" data-html_tooltip="@startTheSnakeGame">Start</button>
+  </div>
+
+  <script>
+    function startSnake() {
+      // Erstelle das Canvas-Element
+      var canvas = document.createElement("canvas");
+      canvas.width = 400;
+      canvas.height = 400;
+      document.body.appendChild(canvas);
+
+      // Starte das Snake-Spiel
+      var ctx = canvas.getContext("2d");
+
+      var snakeSize = 5; // Kleinere Größe für den 5-Eck-Spieler
+      var snake = [{x: 20, y: 20}];
+      var foodSize = 10; // Standardgröße für die Nahrung
+      var specialFoodSize = 10; // Größe für den grünen Kreis
+      var food = {x: 200, y: 200};
+      var specialFood = {x: 100, y: 100}; // Anfangsposition für den grünen Kreis
+      var dx = snakeSize;
+      var dy = 0;
+      var gameOver = false;
+      var score = 0;
+
+      function drawSnake() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "green";
+        snake.forEach(function(segment) {
+          drawPentagon(segment.x, segment.y, snakeSize, ctx);
+        });
+        ctx.fillStyle = "red";
+        ctx.fillRect(food.x, food.y, foodSize, foodSize); // Größe der Nahrung beibehalten
+        ctx.fillStyle = "yellow";
+        ctx.beginPath();
+        ctx.arc(specialFood.x, specialFood.y, specialFoodSize, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function moveSnake() {
+        var head = {x: snake[0].x + dx, y: snake[0].y + dy};
+        snake.unshift(head);
+        if (head.x === food.x && head.y === food.y) {
+          generateFood();
+          score++; // Erhöhe den Score, wenn die Schlange die normale Nahrung isst
+          updateScore();
+        } else if (head.x === specialFood.x && head.y === specialFood.y) {
+          addRandomLength(); // Wenn der Spieler den grünen Kreis isst, füge eine zufällige Länge hinzu
+          generateSpecialFood();
+          score += 5; // Erhöhe den Score, wenn die Schlange den grünen Kreis isst
+          updateScore();
+        } else {
+          snake.pop();
+        }
+        checkCollision();
+      }
+
+      function generateFood() {
+        food.x = Math.floor(Math.random() * (canvas.width / foodSize)) * foodSize;
+        food.y = Math.floor(Math.random() * (canvas.height / foodSize)) * foodSize;
+      }
+
+      function generateSpecialFood() {
+        specialFood.x = Math.floor(Math.random() * (canvas.width / specialFoodSize)) * specialFoodSize;
+        specialFood.y = Math.floor(Math.random() * (canvas.height / specialFoodSize)) * specialFoodSize;
+      }
+
+      function addRandomLength() {
+        var lengthToAdd = Math.floor(Math.random() * 10) + 1; // Zufällige Länge zwischen 1 und 10
+        for (var i = 0; i < lengthToAdd; i++) {
+          snake.push({x: snake[snake.length - 1].x, y: snake[snake.length - 1].y});
+        }
+      }
+
+      function checkCollision() {
+        if (snake[0].x < 0 || snake[0].x >= canvas.width || snake[0].y < 0 || snake[0].y >= canvas.height) {
+          gameOver = true;
+        }
+        for (var i = 1; i < snake.length; i++) {
+          if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) {
+            gameOver = true;
+          }
+        }
+        if (gameOver) {
+          clearInterval(gameLoop);
+          document.getElementById("gameOverText").style.display = "block";
+          document.getElementById("gameOverText").innerText = "Game Over";
+        }
+      }
+
+      function drawPentagon(x, y, size, context) {
+        context.beginPath();
+        for (var i = 0; i < 5; i++) {
+          context.lineTo(x + size * Math.cos((Math.PI * 2 / 5) * i), y + size * Math.sin((Math.PI * 2 / 5) * i));
+        }
+        context.closePath();
+        context.fill();
+      }
+
+      function gameLoop() {
+        if (!gameOver) {
+          drawSnake();
+          moveSnake();
+        }
+      }
+
+      document.addEventListener("keydown", function(event) {
+        switch(event.keyCode) {
+          case 37: // Left
+            dx = -snakeSize;
+            dy = 0;
+            break;
+          case 38: // Up
+            dx = 0;
+            dy = -snakeSize;
+            break;
+          case 39: // Right
+            dx = snakeSize;
+            dy = 0;
+            break;
+          case 40: // Down
+            dx = 0;
+            dy = snakeSize;
+            break;
+        }
+      });
+
+      var gameLoop = setInterval(gameLoop, 100);
+    }
+  </script>
+</body>
+</html>

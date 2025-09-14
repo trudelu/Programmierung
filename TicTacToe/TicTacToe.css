@@ -1,0 +1,24 @@
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+}
+
+.cell {
+    border: 1px solid black;
+    width: 100px;
+    height: 100px;
+    font-size: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.row:nth-child(odd) .cell:nth-child(odd) {
+    background-color: lightgray;
+}
+
+.row:nth-child(even) .cell:nth-child(even) {
+    background-color: lightgray;
+}

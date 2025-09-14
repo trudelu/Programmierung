@@ -1,0 +1,35 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+#game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#background {
+    position: absolute;
+    width: 300%;
+    height: 300%;
+    background: url('/mnt/chromeos/MyFiles/Downloads/verpixelter_Ritter.jpeg') repeat;
+    background-size: 10%; /* Kleinere Kacheln für Mosaik-Effekt */
+    top: -100%;
+    left: -100%;
+}
+
+#control-knob {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: red;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

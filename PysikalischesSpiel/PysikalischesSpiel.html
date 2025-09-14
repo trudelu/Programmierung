@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pysikalisches JumpGame</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            background-color: #87CEEB;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const mapWidth = 21000;
+        const mapHeight = canvas.height;
+
+        let mapOffset = 0;
+        const speed = 3;
+
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            width: 20,
+            height: 20,
+            dy: 0,
+            gravity: 0.5,
+            jumpStrength: 10,
+            grounded: false
+        };
+
+        const terrain = generateTerrain();
+
+        function generateTerrain() {
+            const terrain = [];
+            let height = canvas.height / 2;
+            for (let x = 0; x < mapWidth; x++) {
+                height += (Math.random() - 0.5) * 7;
+                height = Math.max(10, Math.min(canvas.height - 50, height));
+                terrain.push(height);
+            }
+            return terrain;
+        }
+
+        function drawTerrain() {
+            ctx.beginPath();
+            ctx.moveTo(0 - mapOffset, canvas.height);
+            for (let x = 0; x < mapWidth; x++) {
+                ctx.lineTo(x - mapOffset, terrain[x]);
+            }
+            ctx.lineTo(mapWidth - mapOffset, canvas.height);
+            ctx.closePath();
+            ctx.fillStyle = 'indigo';
+            ctx.fill();
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = 'orange';
+            ctx.fillRect(player.x - player.width / 2, player.y - player.height, player.width, player.height);
+        }
+
+        function updatePlayer() {
+            player.dy += player.gravity;
+            player.y += player.dy;
+
+            if (player.y + player.height >= terrain[Math.floor(player.x + mapOffset)]) {
+                player.y = terrain[Math.floor(player.x + mapOffset)] - player.height;
+                player.dy = 0;
+                player.grounded = true;
+            } else {
+                player.grounded = false;
+            }
+        }
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawTerrain();
+            drawPlayer();
+            updatePlayer();
+
+            requestAnimationFrame(update);
+        }
+
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'a') {
+                mapOffset -= speed;
+            } else if (e.key === 'd') {
+                mapOffset += speed;
+            } else if (e.key === ' ' && player.grounded) {
+                player.dy = -player.jumpStrength;
+                player.grounded = false;
+            }
+        });
+
+        update();
+    </script>
+</body>
+</html>
