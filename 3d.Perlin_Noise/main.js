@@ -1,0 +1,118 @@
+// A simple Perlin noise function. For a real project, use a dedicated library.
+// This one is based on a simplified implementation for demonstration.
+const perlin = (() => {
+    const perm = new Uint8Array(512);
+    const p = new Uint8Array(512);
+
+    const grad3 = [
+        [1, 1, 0], [-1, 1, 0], [1, -1, 0], [-1, -1, 0],
+        [1, 0, 1], [-1, 0, 1], [1, 0, -1], [-1, 0, -1],
+        [0, 1, 1], [0, -1, 1], [0, 1, -1], [0, -1, -1]
+    ];
+
+    function initPermutation() {
+        for (let i = 0; i < 256; i++) {
+            p[i] = i;
+        }
+        for (let i = 0; i < 255; i++) {
+            const r = i + Math.floor(Math.random() * (256 - i));
+            const swap = p[i];
+            p[i] = p[r];
+            p[r] = swap;
+        }
+        for (let i = 0; i < 512; i++) {
+            perm[i] = p[i & 255];
+        }
+    }
+
+    function lerp(a, b, t) {
+        return a + t * (b - a);
+    }
+
+    function dot(g, x, y) {
+        return g[0] * x + g[1] * y;
+    }
+
+    function noise(x, y) {
+        const X = Math.floor(x) & 255;
+        const Y = Math.floor(y) & 255;
+        x -= Math.floor(x);
+        y -= Math.floor(y);
+
+        const u = x * x * x * (x * (x * 6 - 15) + 10);
+        const v = y * y * y * (y * (y * 6 - 15) + 10);
+
+        const a = perm[X] + Y;
+        const b = perm[X + 1] + Y;
+
+        const g00 = grad3[perm[a] % 12];
+        const g10 = grad3[perm[b] % 12];
+        const g01 = grad3[perm[a + 1] % 12];
+        const g11 = grad3[perm[b + 1] % 12];
+
+        const n00 = dot(g00, x, y);
+        const n10 = dot(g10, x - 1, y);
+        const n01 = dot(g01, x, y - 1);
+        const n11 = dot(g11, x - 1, y - 1);
+
+        const nx0 = lerp(n00, n10, u);
+        const nx1 = lerp(n01, n11, u);
+
+        return lerp(nx0, nx1, v);
+    }
+
+    initPermutation();
+    return { noise };
+})();
+
+// --- Three.js Setup ---
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Create the terrain geometry
+const TERRAIN_WIDTH = 200;
+const TERRAIN_HEIGHT = 200;
+const resolution = 1;
+const geometry = new THREE.PlaneGeometry(TERRAIN_WIDTH, TERRAIN_HEIGHT, TERRAIN_WIDTH / resolution, TERRAIN_HEIGHT / resolution);
+
+// Generate terrain with Perlin noise
+const vertices = geometry.attributes.position.array;
+for (let i = 0; i < vertices.length; i += 3) {
+    const x = vertices[i];
+    const y = vertices[i + 1];
+
+    const noiseValue = perlin.noise(x * 0.05, y * 0.05) * 5;
+    vertices[i + 2] = noiseValue;
+}
+geometry.attributes.position.needsUpdate = true;
+geometry.computeVertexNormals();
+
+// Create the material and mesh
+const material = new THREE.MeshBasicMaterial({
+    color: 0x00ff00,
+    wireframe: true
+});
+const terrain = new THREE.Mesh(geometry, material);
+scene.add(terrain);
+
+// Position the camera
+camera.position.z = 100;
+camera.position.y = -50;
+camera.rotation.x = Math.PI / 4;
+
+// Animation loop
+function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}
+animate();
+
+// Handle window resizing
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
