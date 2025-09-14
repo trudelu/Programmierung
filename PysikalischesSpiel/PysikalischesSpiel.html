@@ -25,11 +25,12 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        const mapWidth = 21000;
+        const mapWidth = 100;
         const mapHeight = canvas.height;
+        const mapScale = 100;
 
         let mapOffset = 0;
-        const speed = 3;
+        const speed = 100;
 
         const player = {
             x: canvas.width / 2,
@@ -59,7 +60,7 @@
             ctx.beginPath();
             ctx.moveTo(0 - mapOffset, canvas.height);
             for (let x = 0; x < mapWidth; x++) {
-                ctx.lineTo(x - mapOffset, terrain[x]);
+                ctx.lineTo(x*mapScale - mapOffset, terrain[x]);
             }
             ctx.lineTo(mapWidth - mapOffset, canvas.height);
             ctx.closePath();
